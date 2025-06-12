@@ -604,7 +604,7 @@ const ProfilePage = ({ toggleTheme, currentTheme, onLogout, userRole }) => {
             {/* Header Profil */}
             <div className="flex flex-col items-center text-center">
                 <div className="relative">
-                    <img src={`https://source.unsplash.com/150x150/?rock,stone`} alt="Foto profil batu" className="w-24 h-24 rounded-full border-4 border-white dark:border-gray-700 shadow-lg object-cover" />
+                    <img src={`https://img.icons8.com/?size=100&id=37965&format=png&color=000000`} alt="NIGGA" className="w-24 h-24 rounded-full border-4 border-white dark:border-gray-700 shadow-lg object-cover" />
                     <button className="absolute bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full border-2 border-white dark:border-gray-800">
                         <Edit size={14} />
                     </button>
