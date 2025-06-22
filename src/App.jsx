@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ChevronsRight, BookOpen, Tv, Gamepad2, BarChart3, User, Search, Bell, Calendar, Download, ChevronLeft, ChevronRight, PlayCircle, Mic, Lock, Star, Award, Settings, Sun, Moon, Languages, Users, ShieldCheck, HeartHandshake, Eye, Volume2, ArrowRight, X, Mail, KeyRound } from 'lucide-react';
+import { ChevronsRight, BookOpen, Tv, Gamepad2, BarChart3, User, Search, Bell, Calendar, Download, ChevronLeft, ChevronRight, PlayCircle, Mic, Lock, Star, Award, Settings, Sun, Moon, Languages, Users, ShieldCheck, HeartHandshake, Eye, Volume2, ArrowRight, X, Mail, KeyRound, ArrowLeft } from 'lucide-react';
 
 // Helper Components
-const Card = ({ children, className = '' }) => (
-  <div className={`bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 transition-colors duration-300 ${className}`}>
+const Card = ({ children, className = '', onClick }) => (
+  <div 
+    onClick={onClick} 
+    className={`bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 transition-colors duration-300 ${className} ${onClick ? 'cursor-pointer' : ''}`}
+  >
     {children}
   </div>
 );
@@ -162,31 +165,301 @@ const WelcomeScreen = ({ onShowLogin, onShowRegister, onGuestMode }) => {
 // Mock Data
 const mockProgress = { daily: [{ day: 'Sen', value: 30 },{ day: 'Sel', value: 45 },{ day: 'Rab', value: 60 },{ day: 'Kam', value: 20 },{ day: 'Jum', value: 75 },{ day: 'Sab', value: 50 },{ day: 'Min', value: 90 },], overall: { completed: 12, inProgress: 5, total: 30 } };
 const lastOpenedModule = { subject: 'Matematika', title: 'Pecahan Sederhana', progress: 0.6, icon: () => <BookOpen className="w-8 h-8 text-indigo-500" /> };
-const mockModules = [{ id: 1, subject: 'Matematika', title: 'Penjumlahan & Pengurangan', status: 'completed', icon: 'https://placehold.co/100x80/fca5a5/4c0519?text=Matematika' },{ id: 2, subject: 'Bahasa Indonesia', title: 'Membaca Puisi', status: 'in-progress', icon: 'https://placehold.co/100x80/818cf8/1e1b4b?text=Bahasa' },{ id: 3, subject: 'Ilmu Pengetahuan Alam', title: 'Siklus Air', status: 'not-started', icon: 'https://placehold.co/100x80/6ee7b7/064e3b?text=IPA' },{ id: 4, subject: 'Ilmu Pengetahuan Sosial', title: 'Kerajaan Nusantara', status: 'not-started', icon: 'https://placehold.co/100x80/fcd34d/78350f?text=IPS' },{ id: 5, subject: 'Seni Budaya', title: 'Menggambar Perspektif', status: 'completed', icon: 'https://placehold.co/100x80/f9a8d4/831843?text=Seni' }];
+
+// NEW: Extensive Class Data with Descriptions
+const allClassData = {
+    'Kelas 1': {
+        'Matematika': [
+            { id: 101, title: 'Mengenal Angka 1-20', description: 'Belajar membilang dan menulis lambang bilangan dari satu hingga dua puluh.' }, 
+            { id: 102, title: 'Penjumlahan & Pengurangan Dasar', description: 'Konsep dasar tambah dan kurang menggunakan benda-benda di sekitar.' }, 
+            { id: 103, title: 'Mengenal Bentuk Bangun Datar', description: 'Mengidentifikasi bentuk lingkaran, persegi, segitiga, dan persegi panjang.' }
+        ],
+        'Bahasa Indonesia': [
+            { id: 104, title: 'Mengenal Abjad A-Z', description: 'Mengenali dan melafalkan huruf vokal dan konsonan.' }, 
+            { id: 105, title: 'Membaca Suku Kata', description: 'Latihan merangkai suku kata menjadi kata-kata sederhana.' }, 
+            { id: 106, title: 'Menulis Nama Sendiri', description: 'Praktik menulis huruf untuk membentuk nama panggilan dan lengkap.' }
+        ],
+        'Tematik': [
+            { id: 107, title: 'Diriku', description: 'Mengenal anggota tubuh, panca indera, dan identitas diri.' }, 
+            { id: 108, title: 'Keluargaku', description: 'Memahami peran anggota keluarga inti dan silsilah sederhana.' }
+        ]
+    },
+    'Kelas 2': {
+        'Matematika': [
+            { id: 201, title: 'Perkalian & Pembagian Dasar', description: 'Konsep perkalian sebagai penjumlahan berulang dan pembagian.' }, 
+            { id: 202, title: 'Satuan Waktu (Jam)', description: 'Membaca jam analog dan digital, serta konsep pagi, siang, malam.' }, 
+            { id: 203, title: 'Nilai Tempat Bilangan', description: 'Memahami konsep satuan, puluhan, dan ratusan.' }
+        ],
+        'Bahasa Indonesia': [
+            { id: 204, title: 'Membaca Lancar', description: 'Latihan membaca teks pendek dengan intonasi yang benar.' }, 
+            { id: 205, title: 'Membuat Kalimat Sederhana', description: 'Menyusun kalimat dengan subjek dan predikat yang jelas.' }
+        ],
+        'Tematik': [
+            { id: 206, title: 'Bermain di Lingkunganku', description: 'Mengeksplorasi berbagai jenis permainan dan aturan mainnya.' }, 
+            { id: 207, title: 'Merawat Hewan dan Tumbuhan', description: 'Belajar tanggung jawab merawat makhluk hidup di sekitar kita.' }
+        ]
+    },
+    'Kelas 3': {
+        'Matematika': [
+            { id: 301, title: 'Pecahan Sederhana', description: 'Mengenal konsep pecahan 1/2, 1/3, dan 1/4 melalui gambar.' }, 
+            { id: 302, title: 'Pengukuran Panjang & Berat', description: 'Menggunakan alat ukur sederhana seperti penggaris dan timbangan.' }
+        ],
+        'Bahasa Indonesia': [
+            { id: 303, title: 'Membaca Dongeng', description: 'Memahami unsur-unsur dalam dongeng seperti tokoh dan latar.' }, 
+            { id: 304, title: 'Menulis Karangan Pendek', description: 'Mengembangkan ide menjadi sebuah cerita pendek yang runut.' }
+        ],
+        'IPA': [
+            { id: 305, title: 'Ciri-ciri Makhluk Hidup', description: 'Mengidentifikasi ciri umum makhluk hidup seperti bernapas dan bergerak.' }, 
+            { id: 306, title: 'Perubahan Wujud Benda', description: 'Memahami proses mencair, membeku, menguap, dan mengembun.' }
+        ]
+    },
+    'Kelas 4': {
+        'Matematika': [
+            { id: 401, title: 'Bilangan Romawi', description: 'Membaca dan menulis bilangan Romawi hingga angka 100.' }, 
+            { id: 402, title: 'KPK & FPB', description: 'Menentukan Kelipatan Persekutuan Terkecil dan Faktor Persekutuan Terbesar.' }
+        ],
+        'Bahasa Indonesia': [
+            { id: 403, title: 'Gagasan Pokok dan Pendukung', description: 'Menemukan ide utama dalam sebuah paragraf bacaan.' }, 
+            { id: 404, title: 'Membuat Puisi', description: 'Belajar menggunakan majas dan diksi untuk menulis puisi sederhana.' }
+        ],
+        'IPA': [
+            { id: 405, title: 'Rangka Manusia dan Fungsinya', description: 'Mengenal bagian-bagian utama rangka tubuh manusia.' }, 
+            { id: 406, title: 'Gaya dan Gerak', description: 'Memahami hubungan antara gaya, seperti dorongan dan tarikan, dengan gerak benda.' }
+        ],
+        'IPS': [
+            { id: 407, title: 'Keragaman Suku Bangsa', description: 'Mengenal suku, bahasa, dan rumah adat di berbagai provinsi Indonesia.' }, 
+            { id: 408, title: 'Kegiatan Ekonomi', description: 'Membedakan kegiatan produksi, distribusi, dan konsumsi.' }
+        ]
+    },
+    'Kelas 5': {
+        'Matematika': [
+            { id: 501, title: 'Operasi Hitung Pecahan', description: 'Melakukan penjumlahan, pengurangan, perkalian, dan pembagian pecahan.' }, 
+            { id: 502, title: 'Volume Kubus dan Balok', description: 'Menghitung volume bangun ruang menggunakan rumus yang tepat.' }
+        ],
+        'Bahasa Indonesia': [
+            { id: 503, title: 'Surat Resmi dan Tidak Resmi', description: 'Mengidentifikasi perbedaan struktur dan bahasa pada kedua jenis surat.' }
+        ],
+        'IPA': [
+            { id: 504, title: 'Sistem Pernapasan Manusia', description: 'Mengenal organ-organ pernapasan dan fungsinya dari hidung hingga paru-paru.' }, 
+            { id: 505, title: 'Siklus Air', description: 'Memahami tahapan siklus air, dari evaporasi hingga presipitasi.' }
+        ],
+        'IPS': [
+            { id: 506, title: 'Perjuangan Melawan Penjajah', description: 'Mempelajari tokoh-tokoh pahlawan nasional dan bentuk perlawanannya.' }
+        ]
+    },
+    'Kelas 6': {
+        'Matematika': [
+            { id: 601, title: 'Bilangan Bulat Negatif', description: 'Memahami konsep dan operasi hitung pada bilangan bulat negatif.' }, 
+            { id: 602, title: 'Luas & Volume Bangun Ruang', description: 'Menghitung luas permukaan dan volume tabung, kerucut, dan bola.' }
+        ],
+        'Bahasa Indonesia': [
+            { id: 603, title: 'Menyampaikan Pidato', description: 'Teknik menyusun naskah dan menyampaikan pidato dengan percaya diri.' }
+        ],
+        'IPA': [
+            { id: 604, title: 'Sistem Tata Surya', description: 'Mengenal planet-planet, matahari sebagai pusat, dan benda langit lainnya.' }, 
+            { id: 605, title: 'Pubertas', description: 'Memahami perubahan fisik dan psikis yang terjadi pada masa pubertas.' }
+        ],
+        'IPS': [
+            { id: 606, title: 'Modernisasi dan Globalisasi', description: 'Memahami dampak positif dan negatif modernisasi di Indonesia.' }
+        ]
+    },
+    'Kelas 7': {
+        'Matematika': [
+            { id: 701, title: 'Aljabar dan Persamaan Linear', description: 'Pengenalan variabel, koefisien, konstanta, dan penyelesaian PLSV.' }, 
+            { id: 702, title: 'Himpunan', description: 'Konsep himpunan, diagram Venn, dan operasi himpunan (irisan, gabungan).' }, 
+            { id: 703, title: 'Garis dan Sudut', description: 'Hubungan antar sudut (berpelurus, berpenyiku) dan sifat-sifat garis sejajar.' }
+        ],
+        'Bahasa Indonesia': [
+            { id: 704, title: 'Teks Deskripsi', description: 'Struktur dan kaidah kebahasaan untuk menggambarkan objek secara rinci.' }, 
+            { id: 705, title: 'Menganalisis Berita', description: 'Unsur-unsur berita (5W+1H) dan cara menyimpulkan isi berita.' }
+        ],
+        'IPA Terpadu': [
+            { id: 706, title: 'Klasifikasi Materi', description: 'Membedakan unsur, senyawa, dan campuran serta sifat-sifatnya.' }, 
+            { id: 707, title: 'Ekosistem dan Interaksinya', description: 'Komponen biotik dan abiotik, serta rantai makanan.' }
+        ],
+        'IPS Terpadu': [
+            { id: 708, title: 'Manusia, Tempat, dan Lingkungan', description: 'Kondisi geografis Indonesia dan pengaruhnya terhadap kehidupan.' }, 
+            { id: 709, title: 'Masa Praaksara Indonesia', description: 'Periodisasi masa praaksara dan peninggalan budayanya.' }
+        ],
+        'Bahasa Inggris': [
+            { id: 710, title: 'Introduction & Greetings', description: 'Expressions used to introduce oneself and greet others formally and informally.' }, 
+            { id: 711, title: 'Simple Present Tense', description: 'Form and function of simple present tense for daily activities and facts.' }
+        ]
+    },
+    'Kelas 8': {
+        'Matematika': [
+            { id: 801, title: 'Teorema Pythagoras', description: 'Rumus Pythagoras dan penerapannya dalam menyelesaikan soal segitiga siku-siku.' }, 
+            { id: 802, title: 'Lingkaran', description: 'Unsur-unsur lingkaran, serta menghitung keliling dan luas lingkaran.' }
+        ],
+        'Bahasa Indonesia': [
+            { id: 803, title: 'Teks Ulasan dan Persuasif', description: 'Cara memberikan penilaian terhadap karya dan teknik menyusun ajakan.' }
+        ],
+        'IPA Terpadu': [
+            { id: 804, title: 'Gerak dan Gaya (Hukum Newton)', description: 'Memahami Hukum I, II, dan III Newton serta penerapannya.' }, 
+            { id: 805, title: 'Sistem Pencernaan Manusia', description: 'Proses pencernaan makanan dari mulut hingga usus besar.' }
+        ],
+        'IPS Terpadu': [
+            { id: 806, title: 'Pengaruh Interaksi Sosial', description: 'Menganalisis mobilitas sosial dan pluralitas masyarakat Indonesia.' }, 
+            { id: 807, title: 'Masa Kolonialisme', description: 'Kedatangan bangsa Eropa dan pengaruhnya terhadap Indonesia.' }
+        ],
+        'Bahasa Inggris': [
+            { id: 808, title: 'Recount Text', description: 'Structure and language features of telling past events in sequence.' }, 
+            { id: 809, title: 'Present Continuous Tense', description: 'Describing actions happening at the moment of speaking.' }
+        ]
+    },
+    'Kelas 9': {
+        'Matematika': [
+            { id: 901, title: 'Kesebangunan dan Kekongruenan', description: 'Syarat dua bangun datar dikatakan sebangun atau kongruen.' }, 
+            { id: 902, title: 'Statistika dan Peluang', description: 'Menyajikan data dalam tabel/diagram dan menghitung peluang empiris.' }
+        ],
+        'Bahasa Indonesia': [
+            { id: 903, title: 'Teks Diskusi dan Cerita Inspiratif', description: 'Menyajikan pendapat pro-kontra dan mengambil hikmah dari cerita.' }
+        ],
+        'IPA Terpadu': [
+            { id: 904, title: 'Listrik Statis dan Dinamis', description: 'Konsep muatan listrik, medan listrik, dan rangkaian listrik sederhana.' }, 
+            { id: 905, title: 'Pewarisan Sifat', description: 'Dasar-dasar genetika, persilangan monohibrid dan dihibrid.' }
+        ],
+        'IPS Terpadu': [
+            { id: 906, 'title': 'Perubahan Sosial Budaya', description: 'Faktor pendorong dan penghambat perubahan sosial di era globalisasi.' }, 
+            { id: 907, 'title': 'Perjuangan Kemerdekaan', description: 'Peristiwa penting sekitar proklamasi dan perjuangan mempertahankannya.' }
+        ],
+        'Bahasa Inggris': [
+            { id: 908, title: 'Report Text', description: 'Generic structure and features for describing things in general.' }, 
+            { id: 909, 'title': 'Present Perfect Tense', description: 'Using verbs to describe actions that started in the past and continue to the present.' }
+        ]
+    },
+    'Kelas 10': {
+        'Matematika Wajib': [
+            { id: 1001, title: 'Nilai Mutlak', description: 'Konsep, persamaan, dan pertidaksamaan nilai mutlak linear satu variabel.' }
+        ],
+        'Sejarah Indonesia': [
+            { id: 1002, title: 'Jalur Rempah & Nenek Moyang', description: 'Menelusuri asal-usul nenek moyang bangsa Indonesia dan perannya dalam perdagangan dunia.' }
+        ],
+        'Bahasa Inggris': [
+            { id: 1003, title: 'Self Introduction', description: 'Advanced expressions for introducing oneself and others in various contexts.' }
+        ],
+        'Fisika (IPA)': [
+            { id: 1004, title: 'Besaran dan Satuan', description: 'Analisis dimensi, angka penting, dan ketidakpastian dalam pengukuran fisis.' }
+        ],
+        'Kimia (IPA)': [
+            { id: 1005, title: 'Hakikat Ilmu Kimia', description: 'Peran kimia dalam kehidupan, metode ilmiah, dan keselamatan kerja di laboratorium.' }
+        ],
+        'Ekonomi (IPS)': [
+            { id: 1006, title: 'Konsep Dasar Ilmu Ekonomi', description: 'Masalah kelangkaan, biaya peluang, dan sistem ekonomi.' }
+        ],
+        'Sosiologi (IPS)': [
+            { id: 1007, title: 'Fungsi Sosiologi', description: 'Sosiologi sebagai ilmu sosial untuk mengkaji gejala sosial di masyarakat.' }
+        ]
+    },
+    'Kelas 11': {
+        'Matematika Wajib': [
+            { id: 1101, title: 'Program Linear', description: 'Model matematika dan nilai optimum dari sistem pertidaksamaan linear.' }, 
+            { id: 1102, title: 'Matriks', description: 'Operasi, determinan, dan invers matriks serta aplikasinya.' }
+        ],
+        'Matematika Peminatan (IPA)': [
+            { id: 1103, title: 'Trigonometri Analitik', description: 'Jumlah dan selisih sudut, serta persamaan trigonometri sederhana.' }
+        ],
+        'Fisika (IPA)': [
+            { id: 1104, title: 'Dinamika Rotasi', description: 'Momen inersia, momen gaya (torsi), dan kesetimbangan benda tegar.' }
+        ],
+        'Kimia (IPA)': [
+            { id: 1105, title: 'Termokimia', description: 'Entalpi, kalorimetri, dan Hukum Hess.' }
+        ],
+        'Biologi (IPA)': [
+            { id: 1106, title: 'Struktur Sel', description: 'Komponen kimiawi sel, struktur, fungsi, dan proses yang berlangsung dalam sel.' }
+        ],
+        'Ekonomi (IPS)': [
+            { id: 1107, title: 'Pendapatan Nasional', description: 'Konsep dan metode perhitungan PDB, PNB, dan pendapatan per kapita.' }
+        ],
+        'Sosiologi (IPS)': [
+            { id: 1108, title: 'Kelompok Sosial', description: 'Dasar pembentukan, jenis, dan dinamika kelompok sosial di masyarakat.' }
+        ],
+        'Geografi (IPS)': [
+            { id: 1109, title: 'Ketahanan Pangan Nasional', description: 'Sebaran sumber daya alam untuk ketahanan pangan, industri, dan energi.' }
+        ]
+    },
+    'Kelas 12': {
+        'Matematika Wajib': [
+            { id: 1201, title: 'Statistika Inferensial', description: 'Ukuran pemusatan dan penyebaran data untuk data berkelompok.' }
+        ],
+        'Matematika Peminatan (IPA)': [
+            { id: 1202, title: 'Limit & Turunan Trigonometri', description: 'Menentukan nilai limit dan turunan dari fungsi trigonometri.' }
+        ],
+        'Fisika (IPA)': [
+            { id: 1203, title: 'Listrik Arus Searah (DC)', description: 'Hukum Ohm, Hukum Kirchhoff, dan rangkaian listrik DC.' }
+        ],
+        'Kimia (IPA)': [
+            { id: 1204, title: 'Sifat Koligatif Larutan', description: 'Penurunan tekanan uap, kenaikan titik didih, dan penurunan titik beku.' }
+        ],
+        'Biologi (IPA)': [
+            { id: 1205, title: 'Evolusi dan Mutasi', description: 'Teori evolusi, mekanisme mutasi, dan bukti-bukti evolusi.' }
+        ],
+        'Ekonomi (IPS)': [
+            { id: 1206, title: 'Akuntansi Sistem Informasi', description: 'Siklus akuntansi perusahaan jasa dan dagang.' }
+        ],
+        'Sosiologi (IPS)': [
+            { id: 1207, title: 'Perubahan Sosial', description: 'Teori, bentuk, dan dampak perubahan sosial di tingkat lokal dan global.' }
+        ],
+        'Sejarah Peminatan (IPS)': [
+            { id: 1208, title: 'Respon Dunia Terhadap Proklamasi', description: 'Pengakuan kemerdekaan RI dari negara lain dan konflik dengan Belanda.' }
+        ]
+    },
+};
+
 const mockLiveClasses = [{ id: 1, topic: 'Bedah Soal Ujian Nasional IPA', teacher: 'Ibu Amalia', time: 'Besok, 10:00 WIB', registered: true },{ id: 2, topic: 'Creative Writing: Cerpen', teacher: 'Bapak Budi', time: 'Lusa, 14:00 WIB', registered: false },{ id: 3, topic: 'Dasar-dasar Coding untuk Anak', teacher: 'Kak Rian', time: '25 Juni, 16:00 WIB', registered: false }];
 const mockGames = [{ id: 1, title: "Teka-Teki Angka", category: "Matematika", icon: <Gamepad2 className="w-8 h-8 text-green-500"/>, description: "Asah logikamu dengan angka!"},{ id: 2, title: "Sambung Kata", category: "Bahasa", icon: <Gamepad2 className="w-8 h-8 text-blue-500"/>, description: "Perluas kosakatamu sambil bermain."},{ id: 3, title: "Jelajah Galaksi", category: "Sains", icon: <Gamepad2 className="w-8 h-8 text-purple-500"/>, description: "Kenali planet di tata surya."}];
 const mockCertificates = [{id: 1, title: "Master Perkalian Dasar", date: "15 Mei 2024"},{id: 2, title: "Ahli Tata Surya", date: "28 Mei 2024"},{id: 3, title: "Pujangga Cilik Indonesia", date: "5 Juni 2024"}];
 
 
-const HomePage = ({ user, setPage, showModal }) => (
-    <div className="p-6 space-y-8 animate-fadeIn">
-        <div className="flex justify-between items-center">
-            <div>
-                <h1 className="font-poppins font-bold text-2xl text-slate-800 dark:text-white">Selamat datang, {user.name}!</h1>
-                <p className="text-slate-500 dark:text-slate-400">Siap belajar hari ini? 🔥</p>
+const HomePage = ({ user, setPage, showModal, isGuest, onLogout }) => {
+    // Guest View
+    if (isGuest) {
+        return (
+            <div className="p-6 animate-fadeIn flex flex-col items-center justify-center min-h-[calc(100vh-6rem)]">
+                <Card className="text-center max-w-lg">
+                    <div className="flex justify-center mb-6">
+                        <HeartHandshake className="w-16 h-16 text-indigo-500"/>
+                    </div>
+                    <h1 className="font-poppins font-bold text-3xl text-slate-800 dark:text-white">Jelajahi Sebagai Tamu</h1>
+                    <p className="text-slate-500 dark:text-slate-400 mt-4 mb-8 text-lg">
+                        Anda saat ini memiliki akses terbatas. Masuk untuk menyimpan progres belajar, mengikuti kelas live, dan mendapatkan sertifikat.
+                    </p>
+                    <Button 
+                        onClick={onLogout} 
+                        variant="primary" 
+                        className="!text-lg"
+                    >
+                        Masuk atau Daftar Sekarang
+                    </Button>
+                </Card>
             </div>
-            <img src={user.avatar} alt="User Avatar" className="w-14 h-14 rounded-full border-4 border-indigo-500 shadow-lg bg-indigo-200 text-indigo-700 flex items-center justify-center font-bold text-2xl" />
+        );
+    }
+
+    // Regular User View
+    return (
+        <div className="p-6 space-y-8 animate-fadeIn">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="font-poppins font-bold text-2xl text-slate-800 dark:text-white">Selamat datang, {user.name}!</h1>
+                    <p className="text-slate-500 dark:text-slate-400">Siap belajar hari ini? 🔥</p>
+                </div>
+                <img src={user.avatar} alt="User Avatar" className="w-14 h-14 rounded-full border-4 border-indigo-500 shadow-lg bg-indigo-200 text-indigo-700 flex items-center justify-center font-bold text-2xl" />
+            </div>
+            <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white"><h3 className="font-poppins font-bold text-xl mb-4">Progres Mingguan</h3><div className="flex items-end justify-between h-32">{mockProgress.daily.map((d, i) => (<div key={i} className="flex flex-col items-center w-1/7 gap-2"><div className="w-full h-full flex items-end"><div className="w-full bg-white/30 hover:bg-white/50 transition-all rounded-t-md" style={{ height: `${d.value}%` }}></div></div><span className="text-xs font-medium">{d.day}</span></div>))}</div></Card>
+            <Card><h3 className="font-poppins font-bold text-lg mb-4">Lanjutkan Belajar</h3><div className="flex items-center gap-4 bg-indigo-50 dark:bg-slate-700 p-4 rounded-xl"><div className="bg-white p-3 rounded-lg shadow-sm">{lastOpenedModule.icon()}</div><div><p className="text-sm text-slate-500 dark:text-slate-400">{lastOpenedModule.subject}</p><p className="font-bold text-slate-800 dark:text-white">{lastOpenedModule.title}</p></div><button onClick={() => showModal("Info", `Melanjutkan modul "${lastOpenedModule.title}". Selamat belajar!`)} className="ml-auto bg-indigo-500 text-white p-3 rounded-full hover:bg-indigo-600"><PlayCircle className="w-6 h-6" /></button></div><div className="w-full bg-slate-200 rounded-full h-2.5 dark:bg-slate-600 mt-4"><div className="bg-indigo-500 h-2.5 rounded-full" style={{width: `${lastOpenedModule.progress * 100}%`}}></div></div></Card>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">{[{label: 'Modul', icon: <BookOpen/>, page: 'kelas'}, {label: 'Kelas Live', icon: <Tv/>, page: 'live'}, {label: 'Game', icon: <Gamepad2/>, page: 'game'}, {label: 'Laporan', icon: <BarChart3/>, page: 'laporan'}].map(item => (<button key={item.label} onClick={() => setPage(item.page)} className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-slate-800 rounded-xl shadow-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"><div className="text-indigo-500">{React.cloneElement(item.icon, {className: "w-8 h-8"})}</div><span className="font-semibold text-sm">{item.label}</span></button>))}</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6"><Card><h3 className="font-poppins font-bold text-lg mb-4 flex items-center gap-2"><Bell className="w-5 h-5 text-amber-500"/> Notifikasi</h3><ul className="space-y-3"><li className="flex items-start gap-3 text-sm"><div className="w-2 h-2 bg-rose-500 rounded-full mt-1.5 flex-shrink-0"></div><div>Tugas "Sistem Pencernaan" harus dikumpulkan besok.</div></li><li className="flex items-start gap-3 text-sm"><div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div><div>Kelas Live "Bedah Soal" akan dimulai 1 jam lagi.</div></li></ul></Card><Card><h3 className="font-poppins font-bold text-lg mb-4 flex items-center gap-2"><Calendar className="w-5 h-5 text-green-500"/> Kalender Belajar</h3><div className="flex items-center justify-between"><ChevronLeft className="w-6 h-6 cursor-pointer"/><span className="font-semibold">Juni 2024</span><ChevronRight className="w-6 h-6 cursor-pointer"/></div><div className="grid grid-cols-7 text-center text-sm mt-3 gap-y-2">{['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'].map(d => (<div key={d} className="font-bold text-slate-400">{d}</div>))
+            }{Array.from({length: 30}).map((_, i) => (<div key={`day-cell-${i}`} className={`p-1 ${i+1 === 20 ? 'bg-indigo-500 text-white rounded-full' : ''}`}>{i+1}</div>))}</div></Card></div>
+            <div className="text-center p-6 bg-teal-50 dark:bg-teal-900/50 rounded-2xl border-l-4 border-teal-500"><p className="font-inter text-teal-800 dark:text-teal-200 italic">"Belajar itu menyenangkan kalau kamu punya tujuan!"</p><p className="text-sm text-teal-600 dark:text-teal-400 mt-1">- Tips dari Guru</p></div>
         </div>
-        <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white"><h3 className="font-poppins font-bold text-xl mb-4">Progres Mingguan</h3><div className="flex items-end justify-between h-32">{mockProgress.daily.map((d, i) => (<div key={i} className="flex flex-col items-center w-1/7 gap-2"><div className="w-full h-full flex items-end"><div className="w-full bg-white/30 hover:bg-white/50 transition-all rounded-t-md" style={{ height: `${d.value}%` }}></div></div><span className="text-xs font-medium">{d.day}</span></div>))}</div></Card>
-        <Card><h3 className="font-poppins font-bold text-lg mb-4">Lanjutkan Belajar</h3><div className="flex items-center gap-4 bg-indigo-50 dark:bg-slate-700 p-4 rounded-xl"><div className="bg-white p-3 rounded-lg shadow-sm">{lastOpenedModule.icon()}</div><div><p className="text-sm text-slate-500 dark:text-slate-400">{lastOpenedModule.subject}</p><p className="font-bold text-slate-800 dark:text-white">{lastOpenedModule.title}</p></div><button onClick={() => showModal("Info", `Melanjutkan modul "${lastOpenedModule.title}". Selamat belajar!`)} className="ml-auto bg-indigo-500 text-white p-3 rounded-full hover:bg-indigo-600"><PlayCircle className="w-6 h-6" /></button></div><div className="w-full bg-slate-200 rounded-full h-2.5 dark:bg-slate-600 mt-4"><div className="bg-indigo-500 h-2.5 rounded-full" style={{width: `${lastOpenedModule.progress * 100}%`}}></div></div></Card>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">{[{label: 'Modul', icon: <BookOpen/>, page: 'kelas'}, {label: 'Kelas Live', icon: <Tv/>, page: 'live'}, {label: 'Game', icon: <Gamepad2/>, page: 'game'}, {label: 'Laporan', icon: <BarChart3/>, page: 'laporan'}].map(item => (<button key={item.label} onClick={() => setPage(item.page)} className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-slate-800 rounded-xl shadow-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"><div className="text-indigo-500">{React.cloneElement(item.icon, {className: "w-8 h-8"})}</div><span className="font-semibold text-sm">{item.label}</span></button>))}</div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6"><Card><h3 className="font-poppins font-bold text-lg mb-4 flex items-center gap-2"><Bell className="w-5 h-5 text-amber-500"/> Notifikasi</h3><ul className="space-y-3"><li className="flex items-start gap-3 text-sm"><div className="w-2 h-2 bg-rose-500 rounded-full mt-1.5 flex-shrink-0"></div><div>Tugas "Sistem Pencernaan" harus dikumpulkan besok.</div></li><li className="flex items-start gap-3 text-sm"><div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div><div>Kelas Live "Bedah Soal" akan dimulai 1 jam lagi.</div></li></ul></Card><Card><h3 className="font-poppins font-bold text-lg mb-4 flex items-center gap-2"><Calendar className="w-5 h-5 text-green-500"/> Kalender Belajar</h3><div className="flex items-center justify-between"><ChevronLeft className="w-6 h-6 cursor-pointer"/><span className="font-semibold">Juni 2024</span><ChevronRight className="w-6 h-6 cursor-pointer"/></div><div className="grid grid-cols-7 text-center text-sm mt-3 gap-y-2">{['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'].map(d => (<div key={d} className="font-bold text-slate-400">{d}</div>))
-        }{Array.from({length: 30}).map((_, i) => (<div key={`day-cell-${i}`} className={`p-1 ${i+1 === 20 ? 'bg-indigo-500 text-white rounded-full' : ''}`}>{i+1}</div>))}</div></Card></div>
-        <div className="text-center p-6 bg-teal-50 dark:bg-teal-900/50 rounded-2xl border-l-4 border-teal-500"><p className="font-inter text-teal-800 dark:text-teal-200 italic">"Belajar itu menyenangkan kalau kamu punya tujuan!"</p><p className="text-sm text-teal-600 dark:text-teal-400 mt-1">- Tips dari Guru</p></div>
-    </div>
-);
+    );
+};
 
 const ClassesPage = ({ showModal, isGuest }) => {
+    const [selectedGrade, setSelectedGrade] = useState(null);
+    const [selectedSubject, setSelectedSubject] = useState(null);
+
     const handleAction = (title, action) => {
         if(isGuest){
             showModal("Akses Terbatas", "Anda harus mendaftar atau masuk untuk menggunakan fitur ini.");
@@ -194,19 +467,83 @@ const ClassesPage = ({ showModal, isGuest }) => {
             showModal("Info", `Anda ${action} modul "${title}".`);
         }
     };
-    return (
+    
+    const renderBreadcrumbs = () => (
+      <div className="mb-4 flex items-center text-sm text-slate-500 dark:text-slate-400">
+        <button onClick={() => { setSelectedGrade(null); setSelectedSubject(null); }} className="hover:text-indigo-500">Kelas</button>
+        {selectedGrade && (
+          <>
+            <ChevronRight className="w-4 h-4 mx-1" />
+            <button onClick={() => setSelectedSubject(null)} className="hover:text-indigo-500">{selectedGrade}</button>
+          </>
+        )}
+        {selectedSubject && (
+          <>
+            <ChevronRight className="w-4 h-4 mx-1" />
+            <span className="font-semibold text-slate-700 dark:text-slate-200">{selectedSubject}</span>
+          </>
+        )}
+      </div>
+    );
+
+    if (!selectedGrade) {
+      return (
         <div className="p-6 animate-fadeIn">
-            <h1 className="font-poppins font-bold text-3xl mb-2">Kelas & Modul</h1>
-            <p className="text-slate-500 dark:text-slate-400 mb-6">Pilih mata pelajaran dan mulai petualangan belajarmu!</p>
-            <div className="space-y-4">
-            {mockModules.map(modul => (
-              <Card key={modul.id} className="flex items-center gap-4 hover:-translate-y-1 transition-transform">
-                <img src={modul.icon} alt={modul.subject} className="w-20 h-20 rounded-lg object-cover" />
-                <div className="flex-grow">
-                  <p className="text-sm text-indigo-500 font-semibold">{modul.subject}</p>
-                  <h3 className="font-bold text-lg text-slate-800 dark:text-white">{modul.title}</h3>
+          <h1 className="font-poppins font-bold text-3xl mb-2">Pilih Jenjang Kelas</h1>
+          <p className="text-slate-500 dark:text-slate-400 mb-6">Mulai petualangan belajarmu dengan memilih kelas.</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {Object.keys(allClassData).map(grade => (
+              <button key={grade} onClick={() => setSelectedGrade(grade)} className="text-center p-6 bg-white dark:bg-slate-800 rounded-xl shadow-md hover:bg-indigo-50 dark:hover:bg-slate-700 hover:-translate-y-1 transition-all duration-200">
+                <span className="font-poppins font-bold text-indigo-500 text-2xl">{grade.split(' ')[1]}</span>
+                <p className="font-semibold text-slate-600 dark:text-slate-300 mt-1">Kelas</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    
+    if (selectedGrade && !selectedSubject) {
+      const subjects = Object.keys(allClassData[selectedGrade]);
+      return (
+        <div className="p-6 animate-fadeIn">
+          <button onClick={() => setSelectedGrade(null)} className="flex items-center gap-2 mb-4 font-semibold text-indigo-500 hover:text-indigo-600">
+            <ArrowLeft className="w-5 h-5" /> Kembali ke Pilihan Kelas
+          </button>
+          <h1 className="font-poppins font-bold text-3xl mb-2">Pilih Mata Pelajaran</h1>
+          <p className="text-slate-500 dark:text-slate-400 mb-6">Mata pelajaran yang tersedia untuk <span className="font-bold">{selectedGrade}</span>.</p>
+          <div className="space-y-4">
+            {subjects.map(subject => (
+              <Card key={subject} className="flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700" onClick={() => setSelectedSubject(subject)}>
+                <h3 className="font-poppins font-bold text-lg text-slate-800 dark:text-white">{subject}</h3>
+                <ChevronRight className="w-6 h-6 text-slate-400"/>
+              </Card>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (selectedGrade && selectedSubject) {
+      const modules = allClassData[selectedGrade][selectedSubject];
+      return (
+        <div className="p-6 animate-fadeIn">
+          <button onClick={() => setSelectedSubject(null)} className="flex items-center gap-2 mb-4 font-semibold text-indigo-500 hover:text-indigo-600">
+            <ArrowLeft className="w-5 h-5" /> Kembali ke Pilihan Mapel
+          </button>
+          {renderBreadcrumbs()}
+          <h1 className="font-poppins font-bold text-3xl mb-6">Modul {selectedSubject}</h1>
+          <div className="space-y-4">
+            {modules.map(modul => (
+              <Card key={modul.id} className="flex items-start gap-4 hover:-translate-y-1 transition-transform">
+                <div className="bg-indigo-100 dark:bg-slate-700 p-4 rounded-lg flex-shrink-0 mt-1">
+                    <BookOpen className="w-6 h-6 text-indigo-500"/>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex-grow">
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-white">{modul.title}</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{modul.description}</p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
                     <IconButton onClick={() => handleAction(modul.title, "mengunduh")} icon={<Download className="w-5 h-5"/>} />
                     <IconButton onClick={() => handleAction(modul.title, "memulai")} icon={<ArrowRight className="w-5 h-5"/>} className="bg-indigo-500 text-white dark:bg-indigo-500 dark:hover:bg-indigo-600"/>
                 </div>
@@ -214,11 +551,14 @@ const ClassesPage = ({ showModal, isGuest }) => {
             ))}
           </div>
         </div>
-    );
+      );
+    }
+
+    return null;
 };
 
 const LiveClassPage = ({ showModal, isGuest }) => {
-     const handleAction = (title) => {
+   const handleAction = (title) => {
         if(isGuest){
             showModal("Akses Terbatas", "Anda harus mendaftar atau masuk untuk mendaftar kelas live.");
         } else {
@@ -238,7 +578,7 @@ const LiveClassPage = ({ showModal, isGuest }) => {
                            <p className="text-slate-500 dark:text-slate-400 mt-1">oleh {kelas.teacher}</p>
                         </div>
                         <Button onClick={() => handleAction(kelas.topic)} variant={kelas.registered ? "secondary" : "primary"} className="!w-auto !py-2 !px-4 !text-base" disabled={kelas.registered}>
-                           {kelas.registered ? "Terdaftar" : "Daftar"}
+                            {kelas.registered ? "Terdaftar" : "Daftar"}
                         </Button>
                     </div>
                 </Card>
@@ -274,13 +614,11 @@ const GamesPage = ({ showModal }) => {
     );
 };
 
-const ReportsPage = ({ showModal, user, onLogout, theme, toggleTheme }) => {
+const ReportsPage = ({ showModal, user, onLogout, theme, toggleTheme, isGuest }) => {
     const [tab, setTab] = useState('aktivitas');
     const {completed, inProgress, total} = mockProgress.overall;
     const completionPercentage = Math.round((completed / total) * 100);
     const [notifBelajar, setNotifBelajar] = useState(true);
-    const [notifUpdate, setNotifUpdate] = useState(true);
-    const [textSize, setTextSize] = useState('normal');
 
     const SettingsContent = () => (
         <div className="animate-fadeIn space-y-4">
@@ -307,6 +645,19 @@ const ReportsPage = ({ showModal, user, onLogout, theme, toggleTheme }) => {
             </Card>
         </div>
     );
+
+    if (isGuest) {
+        return (
+            <div className="p-6 animate-fadeIn">
+                <h1 className="font-poppins font-bold text-3xl mb-6">Pengaturan Akun</h1>
+                <Card>
+                    <SettingsRow icon={<Lock />} title="Keluar dari Mode Tamu">
+                        <Button onClick={onLogout} variant="outline" className="!w-auto !py-1 !px-3 !text-sm !border-red-500 !text-red-500 hover:!bg-red-500 hover:!text-white">Keluar</Button>
+                    </SettingsRow>
+                </Card>
+            </div>
+        )
+    }
 
     return (
         <div className="p-6 animate-fadeIn">
@@ -360,21 +711,17 @@ const MainApp = ({ user, isGuest, onLogout, theme, toggleTheme, showModal }) => 
   const [activeTab, setActiveTab] = useState('beranda');
 
   const handleNavClick = (tab) => {
-      if (isGuest && tab === 'laporan') {
-          showModal("Akses Terbatas", "Anda harus mendaftar atau masuk untuk melihat laporan & pengaturan.");
-          return;
-      }
       setActiveTab(tab);
   }
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'beranda': return <HomePage user={user} setPage={setActiveTab} showModal={showModal}/>;
+      case 'beranda': return <HomePage user={user} setPage={setActiveTab} showModal={showModal} isGuest={isGuest} onLogout={onLogout} />;
       case 'kelas': return <ClassesPage showModal={showModal} isGuest={isGuest} />;
       case 'live': return <LiveClassPage showModal={showModal} isGuest={isGuest} />;
       case 'game': return <GamesPage showModal={showModal} />;
-      case 'laporan': return <ReportsPage showModal={showModal} user={user} onLogout={onLogout} theme={theme} toggleTheme={toggleTheme} />;
-      default: return <HomePage user={user} setPage={setActiveTab} showModal={showModal}/>;
+      case 'laporan': return <ReportsPage showModal={showModal} user={user} onLogout={onLogout} theme={theme} toggleTheme={toggleTheme} isGuest={isGuest} />;
+      default: return <HomePage user={user} setPage={setActiveTab} showModal={showModal} isGuest={isGuest} onLogout={onLogout} />;
     }
   };
 
@@ -383,7 +730,7 @@ const MainApp = ({ user, isGuest, onLogout, theme, toggleTheme, showModal }) => 
     { id: 'kelas', icon: <BookOpen />, label: 'Kelas' },
     { id: 'live', icon: <Tv />, label: 'Live' },
     { id: 'game', icon: <Gamepad2 />, label: 'Game' },
-    { id: 'laporan', icon: <BarChart3 />, label: 'Laporan', restricted: true },
+    { id: 'laporan', icon: <BarChart3 />, label: 'Laporan' },
   ];
 
   return (
@@ -395,12 +742,11 @@ const MainApp = ({ user, isGuest, onLogout, theme, toggleTheme, showModal }) => 
       <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-800/90 backdrop-blur-sm border-t border-slate-200 dark:border-slate-700 shadow-top z-10">
         <div className="flex justify-around max-w-lg mx-auto">
           {navItems.map(item => {
-              const isDisabled = isGuest && item.restricted;
               return (
                   <button
                     key={item.id}
                     onClick={() => handleNavClick(item.id)}
-                    className={`flex flex-col items-center justify-center w-full py-3 transition-colors duration-300 ${activeTab === item.id && !isDisabled ? 'text-indigo-500' : 'text-slate-400'} ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-indigo-500'}`}
+                    className={`flex flex-col items-center justify-center w-full py-3 transition-colors duration-300 ${activeTab === item.id ? 'text-indigo-500' : 'text-slate-400'} hover:text-indigo-500`}
                   >
                     {React.cloneElement(item.icon, { className: 'w-6 h-6 mb-1' })}
                     <span className="text-xs font-bold">{item.label}</span>
